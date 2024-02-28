@@ -5,6 +5,7 @@ import yara
 import requests
 
 def subscribe_exec():
+    checked = set()
     notifier = pyfanotify.Fanotify()
     notifier.mark("/", is_type="fs")
     notifier.start()
@@ -18,7 +19,10 @@ def subscribe_exec():
             for event in client.get_events():
                 # 4129 - access|open|open_exec, 33 - access|open to add .so checks
                 if (event.ev_types == 4129):
-                    check_yara(str(event.path), event.pid) 
+                    if (not event.path in checked):
+                        check_yara(str(event.path), event.pid)
+                        checked.add(event.path)
+                        print("added to checked", event.path) 
                 event.ev_types = pyfanotify.evt_to_str(event.ev_types)
                 desc.setdefault(event.path, []).append(event)
     except PermissionError:
@@ -47,6 +51,15 @@ def check_yara(path: str, pid: int):
         matches = rules.match(path[2:-1], callback=malware_handler_disk, which_callbacks=yara.CALLBACK_MATCHES)
     except yara.Error as e:
         print("Yara error", e) 
+
+def upload_result():
+    pass
+
+def is_whitelisted():
+    pass
+
+def is_checked():
+    pass
 
 def main():
     get_yara("https://raw.githubusercontent.com/dlegezo/bpfyara/main/master.yara", "master.yara")
