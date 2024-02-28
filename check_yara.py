@@ -41,7 +41,7 @@ def get_yara(url: str, path: str):
 
 def check_yara(path: str, pid: int):
     print("checking", path, pid)
-    rules = yara.compile("/home/dlegezo/poseidon.yara")
+    rules = yara.compile("master.yara")
     try:
         matches = rules.match(pid=pid, callback=malware_handler_mem, which_callbacks=yara.CALLBACK_MATCHES)
         matches = rules.match(path[2:-1], callback=malware_handler_disk, which_callbacks=yara.CALLBACK_MATCHES)
