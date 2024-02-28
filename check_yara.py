@@ -35,10 +35,10 @@ def subscribe_exec():
     notifier.stop()
 
 def malware_handler_mem(data):
-    print("Mythic/poseidon found in memory", data)
+    print("Yara triggered memory alert", data)
 
 def malware_handler_disk(data):
-    print("Mythic/poseidon found on disk", data)
+    print("Yara triggered disk alert", data)
 
 def get_yara(url: str, path: str):
     r = requests.get(url)
@@ -57,9 +57,6 @@ def upload_result():
     pass
 
 def is_whitelisted():
-    pass
-
-def is_checked():
     pass
 
 def main():
