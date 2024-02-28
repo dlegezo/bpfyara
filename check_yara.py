@@ -49,6 +49,7 @@ def check_yara(path: str, pid: int):
         print("Yara error", e) 
 
 def main():
+    get_yara("https://raw.githubusercontent.com/dlegezo/bpfyara/main/poseidon.yara", "master.yara")
     subscribe_exec()    
 
 if __name__ == "__main__":
