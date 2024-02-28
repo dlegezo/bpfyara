@@ -3,6 +3,7 @@ import pyfanotify
 import select
 import yara
 import requests
+import argparse
 
 def subscribe_exec():
     checked = set()
@@ -62,7 +63,14 @@ def is_checked():
     pass
 
 def main():
-    get_yara("https://raw.githubusercontent.com/dlegezo/bpfyara/main/master.yara", "master.yara")
+    parser = argparse.ArgumentParser(
+                    prog="check_yara.py yara_url",
+                    description='When new process appeared on system the agent checks its memory and file against master.yara',
+                    epilog='Send all the questions to dlegezo')
+    parser.add_argument('yara_url')
+    args = parser.parse_args()
+    # print(args.yara_url)
+    get_yara(args.yara_url, "master.yara")
     subscribe_exec()    
 
 if __name__ == "__main__":
