@@ -2,13 +2,12 @@
 import pyfanotify
 import select
 import yara
-import os
 
 def subscribe_exec():
     notifier = pyfanotify.Fanotify()
-    notifier.mark("/", is_type="fs")
+    notifier.mark("/home/dlegezo")
     notifier.start()
-    client = pyfanotify.FanotifyClient(notifier, path_pattern='*')
+    client = pyfanotify.FanotifyClient(notifier, path_pattern='/home/dlegezo/*')
 
     poller = select.poll()
     poller.register(client.sock.fileno(), select.POLLIN)
@@ -16,16 +15,17 @@ def subscribe_exec():
         while poller.poll():
             desc = {}
             for event in client.get_events():
-                # 4129 - access|open|open_exec, 33 - access|open to add .so checks
+                # print(event.ev_types)
+                # 4129 - access|open|open_exec, 33 - access|open
                 if (event.ev_types == 4129):
-                    # check_file_permissions(str(event.path)[2:-1])
-                    check_yara(str(event.path), event.pid) 
+                    check_yara(event.path, event.pid) 
                 event.ev_types = pyfanotify.evt_to_str(event.ev_types)
+                # print(event.ev_types)
                 desc.setdefault(event.path, []).append(event)
-    except PermissionError:
-        print("Access denied", event.ev_types)
-    finally:
-        print("Monitoring stopped due to exception")
+            # if desc:
+                # print(desc)
+    except:
+        print('monitoring stopped, exception occured')
 
     client.close()
     notifier.stop()
@@ -37,13 +37,11 @@ def malware_handler_disk(data):
     print("Mythic/poseidon found on disk", data)
 
 def check_yara(path: str, pid: int):
-    print("checking", path, pid)
+    # print("checking", path, pid)
     rules = yara.compile("/home/dlegezo/poseidon.yara")
-    try:
-        matches = rules.match(pid=pid, callback=malware_handler_mem, which_callbacks=yara.CALLBACK_MATCHES)
-        matches = rules.match(path[2:-1], callback=malware_handler_disk, which_callbacks=yara.CALLBACK_MATCHES)
-    except yara.Error as e:
-        print("Yara error", e) 
+    matches = rules.match(pid=pid, callback=malware_handler_mem, which_callbacks=yara.CALLBACK_MATCHES)
+    # print(typeof(path))
+    # matches = rules.match(string(path), callback=malware_handler_disk, which_callbacks=yara.CALLBACK_MATCHES)
 
 def main():
     subscribe_exec()    
