@@ -2,6 +2,7 @@
 import pyfanotify
 import select
 import yara
+import requests
 
 def subscribe_exec():
     notifier = pyfanotify.Fanotify()
@@ -23,7 +24,7 @@ def subscribe_exec():
     except PermissionError:
         print("Access denied", event.ev_types)
     finally:
-        print("Monitoring stopped due to exception")
+        print("Monitoring stopped due to an exception")
 
     client.close()
     notifier.stop()
@@ -33,6 +34,10 @@ def malware_handler_mem(data):
 
 def malware_handler_disk(data):
     print("Mythic/poseidon found on disk", data)
+
+def get_yara(url: str, path: str):
+    r = requests.get(url)
+    open(path, 'wb').write(r.content)
 
 def check_yara(path: str, pid: int):
     print("checking", path, pid)
