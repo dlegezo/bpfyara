@@ -69,7 +69,6 @@ def main():
                     epilog='Send all the questions to dlegezo')
     parser.add_argument('yara_url')
     args = parser.parse_args()
-    # print(args.yara_url)
     get_yara(args.yara_url, "master.yara")
     subscribe_exec()    
 
